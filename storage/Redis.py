@@ -1,11 +1,12 @@
 
+import json
 from typing import Any, List
 from upstash_redis import Redis
 import os
 
 from models.Product import Product
 from storage.StorageStrategy import StorageStrategy
-from utils.productUtils import generateIdFromProductTitle
+from utils.productUtils import generate_id_from_product_title
 
 class RedisStrategy(StorageStrategy):
 
@@ -19,16 +20,21 @@ class RedisStrategy(StorageStrategy):
         print("\n\nConnected to Redis Client! Ping - ", self.client.ping(),"\n\n")
     
     def close(self):
+        print("\n\n Closing Redis client connection \n\n")
         self.client.close()
 
     def insert(self, product:Product)->Any:
-        return self.client.set(f"product:{generateIdFromProductTitle(productTitle=product.product_title)}",value=product.to_dict())
+        return self.client.set(f"product:{generate_id_from_product_title(productTitle=product.product_title)}",value=json.dumps(product.to_dict()))
 
     def fetchOne(self, product_title: str)->Any:
-        return self.client.get(f"product:{generateIdFromProductTitle(productTitle=product_title)}")
+        response:str = self.client.get(f"product:{generate_id_from_product_title(productTitle=product_title)}")
+        if response:
+            # Decode the byte string and convert it back to a dictionary
+            retrieved_dict = json.loads(response)
+            # print("Retrieved dict- ", retrieved_dict)
+            return retrieved_dict # Output: {'var1': 5, 'var2': 9}
+        else:
+            return None
 
-    async def bulk_insert(self, products: List[Product]):
-        pipe = self.client.pipeline()
-        for product in products:
-            pipe.hset(f"product:{product.id}", mapping=product.to_dict())
-        pipe.execute()
+    def update(self, product: Product):
+        return self.insert(product)

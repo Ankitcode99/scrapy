@@ -13,13 +13,13 @@ class StorageStrategy(ABC):
         pass
 
     @abstractmethod
-    async def insert(self, product:Product)->Any:
+    def insert(self, product:Product)->Any:
         pass
 
     @abstractmethod
-    async def bulk_insert(self, products: List[Product])->Any:
+    def update(self, product: Product)->Any:
         pass
 
     @abstractmethod
-    async def fetchOne(self, product_title: str)->Any:
+    def fetchOne(self, product_title: str)->Any:
         pass

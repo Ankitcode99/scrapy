@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import List
 from models.Product import Product
 
 import pymongo
@@ -19,18 +19,19 @@ class MongoDBStrategy(StorageStrategy):
         self.client = pymongo.MongoClient(mongo_uri)
         self.db = self.client[db_name]
         self.collection = self.db["products"]
-        print("\n\nConnected to MongoDB Client!\n\n")
+        print("\n\nConnected to MongoDB Client!  Ping - ",self.client.admin.command('ping'),"\n\n ")
 
     def close(self):
+        print("\n\n Closing MongoDB client connection \n\n")
         self.client.close()
 
-    async def insert(self, product: Product):
-        return await self.collection.insert_one(product.to_dict())
+    def insert(self, product: Product):
+        return self.collection.insert_one(product.to_dict())
 
     #data type of products is List[Product]
-    async def bulk_insert(self, products:List[Product]):
-        data = [product.to_dict() for product in products]
-        return await self.collection.insert_many(data)
+    def update(self, product:Product):
+        return self.collection.find_one_and_update({"product_title":product.product_title}, {"$set":{"product_price": product.product_price}}, {"new": True})
     
-    async def fetchOne(self, product_title: str):
-        return await self.collection.find_one({product_title})
+    def fetchOne(self, product_title: str):
+        search ={"product_title":product_title}
+        return self.collection.find_one(search)

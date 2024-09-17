@@ -13,3 +13,4 @@ class Product(BaseModel):
             "product_price": self.product_price,
             "path_to_image": self.path_to_image 
         }
+    
