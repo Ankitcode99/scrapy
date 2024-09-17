@@ -1,8 +1,10 @@
 from typing import Any, List, Union
 from models.Product import Product
-from storage import StorageStrategy
+
 import pymongo
 import os
+
+from storage.StorageStrategy import StorageStrategy
 
 class MongoDBStrategy(StorageStrategy):
     def __init__(self):
@@ -17,13 +19,18 @@ class MongoDBStrategy(StorageStrategy):
         self.client = pymongo.MongoClient(mongo_uri)
         self.db = self.client[db_name]
         self.collection = self.db["products"]
+        print("\n\nConnected to MongoDB Client!\n\n")
 
-    def insert(self, collection: str, data: Union[Product, Any]):
-        if isinstance(data, Product):
-            self.db[collection].insert_one(data.to_dict())
-        self.db[collection].insert_one(data)
+    def close(self):
+        self.client.close()
+
+    async def insert(self, product: Product):
+        return await self.collection.insert_one(product.to_dict())
 
     #data type of products is List[Product]
-    def bulk_insert(self, products:List[Product]):
+    async def bulk_insert(self, products:List[Product]):
         data = [product.to_dict() for product in products]
-        self.collection.insert_many(data)
+        return await self.collection.insert_many(data)
+    
+    async def fetchOne(self, product_title: str):
+        return await self.collection.find_one({product_title})
