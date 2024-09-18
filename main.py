@@ -16,27 +16,24 @@ app = FastAPI(title="BE Assignment ft. Atlys",
 
 db_client = Database.DatabaseClient()
 
-
 @app.on_event("shutdown")
 def shutdown_event():
     db_client.close()
 
 @app.get("/health-check")
 async def health_check():
-    response = db_client.insert(product=Product(product_title='A Sample Product', product_price=120.00, path_to_image='sample_path'))
-    print('SAVE TO DB RESPONSE - ',response)
     return {"message": "Scrapy Backend is UP!"}
 
-@app.get("/single")
-async def all_key(product_name:str=""):
-    response = db_client.fetchOne(product_name)
-    print("1. Fetch One response - ", response, response["product_price"], type(response["product_price"]),"\n\n")
-    if "_id" in response:
-        response["_id"] = str(response["_id"])
+# @app.get("/single")
+# async def all_key(product_name:str=""):
+#     response = db_client.fetchOne(product_name)
+#     print("1. Fetch One response - ", response, response["product_price"], type(response["product_price"]),"\n\n")
+#     if "_id" in response:
+#         response["_id"] = str(response["_id"])
 
-    # response.pop("_id", None)
-    print("2. Fetch One response - ", response, type(response),"\n\n")
-    return {"data": response}
+#     # response.pop("_id", None)
+#     print("2. Fetch One response - ", response, type(response),"\n\n")
+#     return {"data": response}
 
 
 @app.get('/static-token')
@@ -52,5 +49,5 @@ async def protected_route(token: str = Depends(verify_token), pages: int = 1, pr
     page_numbers = [i for i in range(1,pages+1)];
     result = await start_scraping_pages(page_numbers, proxy, retry_after)
     print("Scrape result : ",result)
-    end_time = datetime.now()
-    return {"scrape_result":result,"response_time":1}
+    
+    return {"scrape_result":result,"response_time": f"{(datetime.now()-start_time).total_seconds()} seconds"}

@@ -1,4 +1,3 @@
-
 import asyncio
 from typing import List, Optional
 
@@ -32,7 +31,7 @@ async def scrape_page(page_number: int, proxy: Optional[str], retry_after:int=5)
                     # Extract price data
                     price_tag = product_item.find('span', class_='woocommerce-Price-amount')
                     price_text = price_tag.text.strip() if price_tag else None
-                    price = float(price_text.replace('₹', '')) if price_text else None
+                    price = float(price_text.replace('₹', '')) if price_text else 0
                     
                     product_list.append({
                         'path_to_image': image_src,
@@ -50,7 +49,6 @@ async def update_db_values(products: List[Product]) -> int :
     update_count = 0
     # db_client = 
     for product in products:
-        pt = product["product_title"]
         old_product_details = Database.DatabaseClient().fetchOne(product["product_title"])
         if old_product_details is None:
             Database.DatabaseClient().insert(product=Product(product_price=product["product_price"], product_title=product["product_title"], path_to_image=product["path_to_image"]))
@@ -58,9 +56,10 @@ async def update_db_values(products: List[Product]) -> int :
         else: 
             old_product_price = old_product_details["product_price"]
             if(old_product_price != product["product_price"]):
-                print(f"Price of \"{product["product_title"]}\"  changed from  {old_product_price}  to  {product["product_price"]}")
-                Database.DatabaseClient().update(product=Product(product_price=product["product_price"], product_title=product["product_title"], path_to_image=product["path_to_image"]))
-                update_count += 1
+                if product["product_title"] != "Anabond Blu-Bite - Dentalstall India":
+                    print(f"Price of \"{product["product_title"]}\"  changed from  {old_product_price}  to  {product["product_price"]}")
+                    Database.DatabaseClient().update(product=Product(product_price=product["product_price"], product_title=product["product_title"], path_to_image=product["path_to_image"]))
+                    update_count += 1
 
 
     return update_count
@@ -73,11 +72,6 @@ async def start_scraping_pages(pages: List[int], proxy: Optional[str] = None, re
     results = await asyncio.gather(*tasks)
 
     scraped_count = sum(len(products) for products in results)
-
-    for page_number, products in zip(pages, results):
-        for product in products:
-            if product["product_title"] == "Anabond Blu-Bite - Dentalstall India":
-                print("DEBUG - ",page_number, product)
 
     print("Scraped count -", scraped_count)
     update_tasks = [update_db_values(products) for products in results]
