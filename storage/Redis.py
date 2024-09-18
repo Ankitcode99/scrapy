@@ -24,10 +24,10 @@ class RedisStrategy(StorageStrategy):
         self.client.close()
 
     def insert(self, product:Product)->Any:
-        return self.client.set(f"product:{generate_id_from_product_title(productTitle=product.product_title)}",value=json.dumps(product.to_dict()))
+        return self.client.set(f"product:{generate_id_from_product_title(product_title=product.product_title)}",value=json.dumps(product.to_dict()))
 
     def fetchOne(self, product_title: str)->Any:
-        response:str = self.client.get(f"product:{generate_id_from_product_title(productTitle=product_title)}")
+        response:str = self.client.get(f"product:{generate_id_from_product_title(product_title=product_title)}")
         if response:
             # Decode the byte string and convert it back to a dictionary
             retrieved_dict = json.loads(response)
