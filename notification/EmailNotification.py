@@ -9,4 +9,4 @@ class EmailNotification(NotificationStrategy):
 
     def send_notification(self, data:Any):
         for email in self.email_list:
-            print(f"Sending Email Notification to {email} :: Scraped Data Count - {data.scraped_count} , Updated Data Count - {data.updated_count}")
+            print(f"Sending Email Notification to {email} :: Scraped Data Count - {data["scraped_count"]} , Updated Data Count - {data["updated_count"]}")

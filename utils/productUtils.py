@@ -8,8 +8,8 @@ import Database
 from models.Product import Product
 
 
-def generate_id_from_product_title(productTitle: str) -> str:
-    return productTitle.strip().lower().replace(' ','_')
+def generate_id_from_product_title(product_title: str) -> str:
+    return product_title.strip().lower().replace(' ','_')
 
 async def scrape_page(page_number: int, proxy: Optional[str], retry_after:int=5) -> List[Product]:
     url = f"https://dentalstall.com/shop/page/{page_number}/"
@@ -19,10 +19,9 @@ async def scrape_page(page_number: int, proxy: Optional[str], retry_after:int=5)
                 response.raise_for_status()
                 soup = BeautifulSoup(await response.text(), 'html.parser')
                 product_list = []
-                # Find all product items
+                
                 product_items = soup.find_all('li', class_='type-product')
                 
-                # Iterate over product items and extract data
                 for product_item in product_items:
                     # Extract image data
                     image_tag = product_item.find('img', class_='attachment-woocommerce_thumbnail')
