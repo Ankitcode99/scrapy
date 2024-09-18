@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException
@@ -6,7 +5,6 @@ import Database
 from middleware.auth import verify_token
 from models.Product import Product
 from dotenv import load_dotenv
-import os
 
 from utils.productUtils import start_scraping_pages
 load_dotenv()
