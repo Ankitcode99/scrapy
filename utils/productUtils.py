@@ -56,7 +56,7 @@ async def update_db_values(products: List[Product]) -> int :
             old_product_price = old_product_details["product_price"]
             if(old_product_price != product["product_price"]):
                 if product["product_title"] != "Anabond Blu-Bite - Dentalstall India":
-                    print(f"Price of \"{product["product_title"]}\"  changed from  {old_product_price}  to  {product["product_price"]}")
+                    print(f"Price of \"{product['product_title']}\" changed from {old_product_price} to {product['product_price']}")
                     Database.DatabaseClient().update(product=Product(product_price=product["product_price"], product_title=product["product_title"], path_to_image=product["path_to_image"]))
                     update_count += 1
 
